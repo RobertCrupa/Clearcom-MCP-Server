@@ -1,0 +1,14 @@
+{
+	"servers": {
+		"clearcom": {
+			"type": "stdio",
+			"command": "uvx",
+			"args": [
+				"fastmcp",
+				"run",
+				"src/main.py:mcp"
+			]
+		}
+	},
+	"inputs": []
+}
