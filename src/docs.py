@@ -46,3 +46,26 @@ RETURNS:
     }
   }
 """
+
+
+ADD_PARTYLINE_DOC = """
+Create a partyline entity with a Human-readable name
+
+REQUIRED PARAMETERS:
+  • label (str): Human-readable name 
+
+OPTIONAL PARAMETERS:
+  
+
+BEHAVIOR:
+
+EXAMPLE USAGE:
+
+
+RETURNS:
+  {
+    "ok": true,
+    "gidResponse": 78293748923789
+  }
+  
+"""
