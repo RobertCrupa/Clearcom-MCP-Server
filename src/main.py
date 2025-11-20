@@ -4,13 +4,15 @@ from typing import Optional, Dict, Any
 from pydantic import BaseModel
 from docs import *
 from models import *
-from device_client import DeviceClient
-from mock_client import MockDeviceClient
+
+# Swap these around to flip between mock and real calls
+
+#from device_client import DeviceClient
+from mock_client import DeviceClient
 
 
 mcp = FastMCP("ClearCom MCP Server")
-#client = DeviceClient(base_url="http://10.50.16.99", username="admin", password="admin")
-client = MockDeviceClient(base_url="http://10.50.16.99", username="admin", password="admin")
+client = DeviceClient(base_url="http://10.50.16.99", username="admin", password="admin")
 
 
 @mcp.tool(name="createRole", description=CREATE_ROLE_DOC)
@@ -35,11 +37,21 @@ class addPartylineResponse(BaseModel):
 def addChannel(
     label: str,
 ) -> bool:
-    ADD_CHANNEL_DOC
 
     # Create the channel object
     req = ConnectionsAddRequest(type=ConnectionType.PARTYLINE, label=label)
     response = client.add_connection(req)
+
+    return True
+
+@mcp.tool(description=ASSIGN_CHANNEL_TO_ROLE_DOC)
+def assignChannelToRole(
+    roleLabel: str,
+    channelLabel: str,
+    isLatching: bool
+) -> bool:
+    
+    client.assign_channel_to_role(channel_name=channelLabel, role_name=roleLabel, is_latching=isLatching)
 
     return True
 

@@ -36,6 +36,13 @@ class DeviceClient:
         """
         pass
 
+    def assign_channel_to_role(self, channel_name, role_name, is_latching):
+        print(f"Called assing_channel_to_role with channel_name={channel_name}, role_name={role_name}, is_latching={is_latching}")
+        pass
+
+    def add_connection(self, req):
+        print(f"Called add_connection with request={req}")
+
 
     def close(self):
         """Close the HTTP session."""

@@ -50,7 +50,20 @@ Dressing Room 3,HXII-KB,2,,,,,,,,
 Dressing Room 4,HXII-KB,2,,,,,,,,
 House Manager 1,HXII-KB,,,,,,,,,2
 House Manager 2,HXII-KB,,,,,,,,,2
+"""
 
+ASSIGN_CHANNEL_TO_ROLE_DOC = """
+Assigns a channel to a role in the ClearCom MCP system.
+
+Parameters:
+- roleLabel (str): The label of the role to assign the channel to.
+- channelLabel (str): The label of the channel to be assigned.
+- isLatching (bool): True if set to latching.
+
+Returns:
+- bool: True if the assignment was successful, False otherwise.
+
+Use this tool to link a specific channel (such as a partyline).
 """
 
 CREATE_ROLE_DOC = """
