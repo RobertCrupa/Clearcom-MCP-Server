@@ -155,6 +155,44 @@ class DeviceClient:
         except (KeyError, ValueError) as e:
             raise ValueError(f"Failed to parse response: {e}")
     
+    def get_roles(self) -> list[dict[str, Any]]:
+        """
+        Makes a GET request to /api/2/rolesets to fetch the list of rolesets.
+        
+        Returns:
+            List of rolesets as dictionaries
+        """
+        url = f"{self.base_url}/api/2/rolesets"
+        
+        try:
+            response = self.session.get(
+                url,
+                headers={"Content-Type": "application/json"},
+                timeout=30
+            )
+            
+            # Raise an exception for bad status codes
+            response.raise_for_status()
+            
+            # Parse response JSON
+            response_json = response.json()
+            
+            return response_json
+            
+        except requests.RequestException as e:
+            raise requests.RequestException(f"Failed to get rolesets: {e}")
+    
+    def get_role_names(self) -> list[str]:
+        """
+        Retrieves the list of role names from the rolesets.
+        
+        Returns:
+            List of role names (str)
+        """
+        rolesets = self.get_roles()
+        role_names = [roleset["label"] for roleset in rolesets]
+        return role_names
+    
     def add_roles(self, request: RolesAddRequest) -> None:
         """
         Makes a POST request to /api/2/rolesets/create to add new roles.

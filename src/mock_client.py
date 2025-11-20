@@ -1,3 +1,4 @@
+from typing import Any
 from models import *
 
 class DeviceClient:
@@ -23,6 +24,19 @@ class DeviceClient:
         """
 
         return ConnectionsGetResponse(connections=[])
+
+    def get_roles(self) -> list[dict[str, Any]]:
+        """
+        Makes a GET request to /api/2/rolesets to fetch the list of rolesets.
+        
+        Returns:
+            List of rolesets as dictionaries
+        """
+        return []
+    
+    def get_role_names(self) -> list[str]:
+        roles = self.get_roles()
+        return [role['label'] for role in roles]
             
     def add_roles(self, request: RolesAddRequest) -> None:
         """
