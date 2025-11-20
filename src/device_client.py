@@ -220,13 +220,14 @@ class DeviceClient:
         except requests.RequestException as e:
             raise requests.RequestException(f"Failed to get keysets: {e}")
     
-    def assign_channel_to_role(self, channel_name: str, role_name: str) -> None:
+    def assign_channel_to_role(self, channel_name: str, role_name: str, is_latching: bool) -> None:
         """
         Assigns a channel to a role.
         
         Args:
             channel_name: Name of the channel to assign
             role_name: Name of the role to assign the channel to
+            is_latching: Whether the key is latching or not
             
         Raises:
             requests.RequestException: If the HTTP request fails
@@ -252,6 +253,7 @@ class DeviceClient:
                         "res": this_channel.res,
                         "type": 0 # Assuming adding a channel connection
                     })
+                    key["talkBtnMode"] = "latching" if is_latching else "non-latching"
                     break
             
             request_data = {
