@@ -2,8 +2,7 @@ from fastmcp import FastMCP
 import random
 from typing import Optional, Dict, Any
 from pydantic import BaseModel
-from docs import CREATE_ROLE_DOC
-from docs import ADD_PARTYLINE_DOC
+from docs import CREATE_ROLE_DOC, ADD_PARTYLINE_DOC
 
 # Define the request and response models
 class CreateRoleRequest(BaseModel):
