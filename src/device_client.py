@@ -130,13 +130,13 @@ class DeviceClient:
                 timeout=30
             )
             
-            # Raise an exception for bad status codes
-            response.raise_for_status()
-            
             # Parse response JSON
             response_json = response.json()
             if (response_json["ok"] != True):
-                raise ValueError("Failed to add connection: API returned not ok")
+                raise ValueError(f"Failed to add connection: {response_json['message']}")
+            
+            # Raise an exception for bad status codes
+            response.raise_for_status()
 
             new_connection = response_json["newConnection"]
             
@@ -183,12 +183,12 @@ class DeviceClient:
                 timeout=30
             )
             
-            # Raise an exception for bad status codes
-            response.raise_for_status()
-            
             response_json = response.json()
             if (response_json["ok"] != True):
-                raise ValueError("Failed to add roles: API returned not ok")
+                raise ValueError(f"Failed to add roles: {response_json['message']}")
+            
+            # Raise an exception for bad status codes
+            response.raise_for_status()
             
         except requests.RequestException as e:
             raise requests.RequestException(f"Failed to add roles: {e}")
@@ -269,13 +269,13 @@ class DeviceClient:
                 timeout=30
             )
             
-            # Raise an exception for bad status codes
-            response.raise_for_status()
-            
             # Parse response JSON
             response_json = response.json()
             if (response_json["ok"] != True):
-                raise ValueError("Failed to assign channel to role: API returned not ok")
+                raise ValueError(f"Failed to assign channel to role: {response_json['message']}")
+            
+            # Raise an exception for bad status codes
+            response.raise_for_status()
             
         except requests.RequestException as e:
             raise requests.RequestException(f"Failed to assign channel to role: {e}")
@@ -291,13 +291,13 @@ if __name__ == "__main__":
     # get_response = client.get_connections()
     # print(f"Connections: {', '.join([conn.label for conn in get_response.connections])}")
     
-    # add_request = ConnectionsAddRequest(type=ConnectionType.PARTYLINE)
-    # add_response = client.add_connection(add_request)
-    # print(f"Connection added with ID: {add_response.newConnection.id}")
+    add_request = ConnectionsAddRequest(type=ConnectionType.PARTYLINE, label="Production")
+    add_response = client.add_connection(add_request)
+    print(f"Connection added with ID: {add_response.newConnection.id}")
 
     # add_request = RolesAddRequest(label="NewRole", quantity=1, sessions=[RoleSessionType.FREESPEAK_4KEY, RoleSessionType.KEYPANEL_12KEY], singleKeysetPerType=False)
     # client.add_roles(add_request)
 
-    client.assign_channel_to_role(channel_name="Channel 1", role_name="test")
+    # client.assign_channel_to_role(channel_name="Channel 1", role_name="test")
 
     client.close()
