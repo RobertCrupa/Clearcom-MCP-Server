@@ -49,6 +49,53 @@ class DeviceClient:
             raise requests.RequestException(f"Failed to authenticate: {e}")
         except (KeyError, ValueError) as e:
             raise ValueError(f"Failed to parse authentication response: {e}")
+
+    def get_connections(self) -> ConnectionsGetResponse:
+        """
+        Makes a GET request to /api/1/connections to fetch the list of connections.
+        
+        Returns:
+            ConnectionsGetResponse object containing the list of connections
+            
+        Raises:
+            requests.RequestException: If the HTTP request fails
+            ValueError: If the response cannot be parsed
+        """
+        url = f"{self.base_url}/api/1/connections"
+        
+        try:
+            response = self.session.get(
+                url,
+                headers={"Content-Type": "application/json"},
+                timeout=30
+            )
+            
+            # Raise an exception for bad status codes
+            response.raise_for_status()
+            
+            # Parse response JSON
+            response_json = response.json()
+            connections_data = response_json
+            
+            # Deserialize response into ConnectionsGetResponse object
+            connections = []
+            for conn_data in connections_data:
+                connection = ConnectionInfo(
+                    id=conn_data["id"],
+                    gid=conn_data["gid"],
+                    label=conn_data["label"],
+                    res=conn_data["res"],
+                    type=ConnectionType(conn_data["type"]),
+                    helixnetEnabled=conn_data.get("helixnetEnabled", False)
+                )
+                connections.append(connection)
+            
+            return ConnectionsGetResponse(connections)
+            
+        except requests.RequestException as e:
+            raise requests.RequestException(f"Failed to get connections: {e}")
+        except (KeyError, ValueError) as e:
+            raise ValueError(f"Failed to parse response: {e}")
     
     def add_connection(self, request: ConnectionsAddRequest) -> ConnectionsAddResponse:
         """
@@ -145,7 +192,6 @@ class DeviceClient:
             
         except requests.RequestException as e:
             raise requests.RequestException(f"Failed to add roles: {e}")
-
     
     def close(self):
         """Close the HTTP session."""
@@ -154,12 +200,15 @@ class DeviceClient:
 if __name__ == "__main__":
     # Example usage
     client = DeviceClient(base_url="http://10.50.16.99", username="admin", password="admin")
+
+    get_response = client.get_connections()
+    print(f"Connections: {', '.join([conn.label for conn in get_response.connections])}")
     
     # add_request = ConnectionsAddRequest(type=ConnectionType.PARTYLINE)
     # add_response = client.add_connection(add_request)
     # print(f"Connection added with ID: {add_response.newConnection.id}")
 
-    add_request = RolesAddRequest(label="NewRole", quantity=1, sessions=[RoleSessionType.FREESPEAK_4KEY, RoleSessionType.KEYPANEL_12KEY], singleKeysetPerType=False)
-    client.add_roles(add_request)
+    # add_request = RolesAddRequest(label="NewRole", quantity=1, sessions=[RoleSessionType.FREESPEAK_4KEY, RoleSessionType.KEYPANEL_12KEY], singleKeysetPerType=False)
+    # client.add_roles(add_request)
 
     client.close()

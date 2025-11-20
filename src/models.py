@@ -15,6 +15,8 @@ class ConnectionInfo:
         self.type = type
         self.helixnetEnabled = helixnetEnabled
 
+class ConnectionsGetResponse:
+    def __init__(self, connections:list[ConnectionInfo]):
         self.connections = connections
 
 class ConnectionsAddRequest:
