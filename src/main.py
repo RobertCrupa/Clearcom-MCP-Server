@@ -14,6 +14,9 @@ from mock_client import DeviceClient
 mcp = FastMCP("ClearCom MCP Server")
 client = DeviceClient(base_url="http://10.50.16.99", username="admin", password="admin")
 
+@mcp.tool(name="getRoles", description=GET_ROLES_DOC)
+def getRoles() -> list[str]:
+    return client.get_role_names()
 
 @mcp.tool(name="createRole", description=CREATE_ROLE_DOC)
 def createRole(
@@ -32,6 +35,12 @@ class addPartylineResponse(BaseModel):
     ok: bool
     gidResponse: int
 
+
+@mcp.tool(description=GET_CHANNELS_DOC)
+def getChannels() -> list[str]:
+    response: ConnectionsGetResponse = client.get_connections()
+    channel_labels = [conn.label for conn in response.connections if conn.type == ConnectionType.PARTYLINE]
+    return channel_labels
 
 @mcp.tool(name="addChannel", description=ADD_CHANNEL_DOC)
 def addChannel(

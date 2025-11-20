@@ -66,6 +66,13 @@ Returns:
 Use this tool to link a specific channel (such as a partyline).
 """
 
+GET_ROLES_DOC = """
+Retrieve a list of all role labels from the ClearCom MCP system.
+
+RETURNS:
+  • list[str]: A list of role labels (str)
+"""
+
 CREATE_ROLE_DOC = """
 Create a role with a label and keyset type.
 
@@ -91,6 +98,11 @@ RETURNS:
   • True if the role was successfully created
 """
 
+GET_CHANNELS_DOC = """
+Retrieve a list of all partyline channel labels from the ClearCom MCP system.
+
+RETURNS:
+  • list[str]: A list of channel labels (str) for all partyline channels."""
 
 ADD_CHANNEL_DOC = """
 Create a channel with a label.
