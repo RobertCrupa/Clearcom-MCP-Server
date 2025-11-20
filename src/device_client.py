@@ -1,6 +1,6 @@
 import requests
 import json
-from typing import Optional
+from typing import Any, Optional
 from models import *
 import base64
 
@@ -193,6 +193,91 @@ class DeviceClient:
         except requests.RequestException as e:
             raise requests.RequestException(f"Failed to add roles: {e}")
     
+    def get_keysets(self) -> list[dict[str, Any]]:
+        """
+        Makes a GET request to /api/2/keysets to fetch the list of keysets.
+        
+        Returns:
+            List of keysets as dictionaries
+        """
+        url = f"{self.base_url}/api/2/keysets"
+        
+        try:
+            response = self.session.get(
+                url,
+                headers={"Content-Type": "application/json"},
+                timeout=30
+            )
+            
+            # Raise an exception for bad status codes
+            response.raise_for_status()
+            
+            # Parse response JSON
+            response_json = response.json()
+            
+            return response_json
+            
+        except requests.RequestException as e:
+            raise requests.RequestException(f"Failed to get keysets: {e}")
+    
+    def assign_channel_to_role(self, channel_name: str, role_name: str) -> None:
+        """
+        Assigns a channel to a role.
+        
+        Args:
+            channel_name: Name of the channel to assign
+            role_name: Name of the role to assign the channel to
+            
+        Raises:
+            requests.RequestException: If the HTTP request fails
+        """
+        
+        try:
+            connections = self.get_connections()
+            this_channel_list = [conn for conn in connections.connections if conn.label == channel_name and conn.type == ConnectionType.PARTYLINE]
+            if len(this_channel_list) != 1:
+                raise ValueError(f"Channel '{channel_name}' not found or multiple channels with same name exist.")
+            this_channel = this_channel_list[0]
+
+            keysets = self.get_keysets()
+            this_keyset_list = [ks for ks in keysets if ks["label"] == role_name]
+            if len(this_keyset_list) != 1:
+                raise ValueError(f"Role '{role_name}' not found or multiple roles with same name exist.")
+            this_keyset = this_keyset_list[0]
+
+            for key in this_keyset["settings"]["keysets"]:
+                if len(key["entities"]) == 0:
+                    key["entities"].append({
+                        "gid": this_channel.gid,
+                        "res": this_channel.res,
+                        "type": 0 # Assuming adding a channel connection
+                    })
+                    break
+            
+            request_data = {
+                "settings": this_keyset["settings"],
+                "type": this_keyset["type"]
+            }
+
+            url = f"{self.base_url}/api/2/keysets/{this_keyset['id']}"
+            response = self.session.put(
+                url,
+                json=request_data,
+                headers={"Content-Type": "application/json"},
+                timeout=30
+            )
+            
+            # Raise an exception for bad status codes
+            response.raise_for_status()
+            
+            # Parse response JSON
+            response_json = response.json()
+            if (response_json["ok"] != True):
+                raise ValueError("Failed to assign channel to role: API returned not ok")
+            
+        except requests.RequestException as e:
+            raise requests.RequestException(f"Failed to assign channel to role: {e}")
+    
     def close(self):
         """Close the HTTP session."""
         self.session.close()
@@ -201,8 +286,8 @@ if __name__ == "__main__":
     # Example usage
     client = DeviceClient(base_url="http://10.50.16.99", username="admin", password="admin")
 
-    get_response = client.get_connections()
-    print(f"Connections: {', '.join([conn.label for conn in get_response.connections])}")
+    # get_response = client.get_connections()
+    # print(f"Connections: {', '.join([conn.label for conn in get_response.connections])}")
     
     # add_request = ConnectionsAddRequest(type=ConnectionType.PARTYLINE)
     # add_response = client.add_connection(add_request)
@@ -210,5 +295,7 @@ if __name__ == "__main__":
 
     # add_request = RolesAddRequest(label="NewRole", quantity=1, sessions=[RoleSessionType.FREESPEAK_4KEY, RoleSessionType.KEYPANEL_12KEY], singleKeysetPerType=False)
     # client.add_roles(add_request)
+
+    client.assign_channel_to_role(channel_name="Channel 1", role_name="test")
 
     client.close()
