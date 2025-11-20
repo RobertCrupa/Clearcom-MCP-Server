@@ -1,0 +1,18 @@
+Role,Keyset,Production,Audio,Lighting,Lighting Spots,Automation,Stage,Ushers,Paging Lobby,Paging Backstage
+Stage Manager,V-Series,1,1,1,,1,1,1,2,2
+Audio FOH,HXII-RM,2,1,,,,,,,
+Lighting FOH,V-Series,2,,1,1,,,,,
+Automation,V-Series,2,,,,1,1,,,
+Recording,HXII-RM,2,1,,,,,,,
+Stage 1,FSIC-BP,2,,,,2,2,,,
+Stage 2,FSII-BP,2,,,,2,2,,,
+Stage 3,FSII-BP,2,,,,2,2,,,
+Stage 4,FSII-BP,2,,,,2,2,,,
+Stage 5,FSII-BP,2,,,,2,2,,,
+Stage 6,FSII-BP,2,,,,2,2,,,
+Stage Manager,FSIC-BP,1,1,1,,1,1,,,
+Audio 1,FSIC-BP,2,1,,,,,,,
+Audio 2,FSII-BP,2,1,,,,,,,
+Lighting 1,FSIC-BP,2,,1,,,,,,
+Lighting 2,FSII-BP,2,,1,,,,,,
+Lighting 3,FSII-BP,2,,1,,,,,,
