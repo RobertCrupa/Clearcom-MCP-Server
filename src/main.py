@@ -35,6 +35,16 @@ class addPartylineResponse(BaseModel):
     ok: bool
     gidResponse: int
 
+@mcp.tool(description=DELETE_ROLE_DOC)
+def deleteRole(
+    label: str,
+) -> bool:
+    roles = client.get_roles()
+    roleid_to_delete = [role["id"] for role in roles if role["label"] == label]
+    if len(roleid_to_delete) != 1:
+        raise ValueError(f"Could not find role with label={label} to delete")
+    client.delete_role(roleid_to_delete[0])
+    return True
 
 @mcp.tool(description=GET_CHANNELS_DOC)
 def getChannels() -> list[str]:
@@ -51,6 +61,17 @@ def addChannel(
     req = ConnectionsAddRequest(type=ConnectionType.PARTYLINE, label=label)
     response = client.add_connection(req)
 
+    return True
+
+@mcp.tool(description=DELETE_CHANNEL_DOC)
+def deleteChannel(
+    label: str,
+) -> bool:
+    conns = client.get_connections()
+    connid_to_delete = [conn.id for conn in conns.connections if conn.type == ConnectionType.PARTYLINE and conn.label == label]
+    if len(connid_to_delete) != 1:
+        raise ValueError(f"Could not find channel with label={label} to delete")
+    client.delete_connection(connid_to_delete[0])
     return True
 
 @mcp.tool(description=ASSIGN_CHANNEL_TO_ROLE_DOC)
