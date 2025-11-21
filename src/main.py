@@ -7,8 +7,8 @@ from models import *
 
 # Swap these around to flip between mock and real calls
 
-#from device_client import DeviceClient
-from mock_client import DeviceClient
+from device_client import DeviceClient
+#from mock_client import DeviceClient
 
 
 mcp = FastMCP("ClearCom MCP Server")

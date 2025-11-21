@@ -1,10 +1,8 @@
-import asyncio
 import os
-from pathlib import Path
 
 from google import genai
 from google.genai import types as genai_types
-from client import MCPClient
+from .client import MCPClient
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,9 +20,6 @@ mcp_client = MCPClient(
         "src/main.py:mcp",
     ],
 )
-
-
-print("Welcome to your AI Assistant. Type 'goodbye' to quit.")
 
 
 def resolve_schema_refs(schema: dict) -> dict:
@@ -91,8 +86,9 @@ def convert_mcp_tools_to_gemini(mcp_tools):
     return gemini_tools
 
 
-async def main():
-    """Main async function to run the assistant."""
+async def agent_chat(conversation: list[str]) -> list[str]:
+    response = []
+
     try:
         await mcp_client.connect()
         mcp_tools = await mcp_client.get_available_tools()
@@ -101,70 +97,56 @@ async def main():
             f"Available tools: {", ".join([tool['name'] for tool in mcp_tools])}"
         )
 
-        # Maintain conversation history
-        conversation_history = []
-
+        # Tool use loop - continue until we get a final text response
         while True:
-            prompt = input("You: ")
-            if prompt.lower() == "goodbye":
-                print("AI Assistant: Goodbye!")
-                break
-
-            # Add user message to conversation history
-            conversation_history.append(prompt)
-
-            # Tool use loop - continue until we get a final text response
-            while True:
-                # Get LLM response
-                current_response = await client.aio.models.generate_content(
-                    contents=conversation_history,
-                    model="gemini-2.5-flash",
-                    config=genai_types.GenerateContentConfig(
-                        temperature=0,
-                        tools=available_tools,
-                        automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(
-                            disable=True
-                        )
+            # Get LLM response
+            current_response = await client.aio.models.generate_content(
+                contents=conversation,
+                model="gemini-2.5-pro",
+                config=genai_types.GenerateContentConfig(
+                    temperature=0,
+                    tools=available_tools,
+                    automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(
+                        disable=True
                     )
                 )
+            )
 
-                # Check if we need to use tools by looking at function_calls
-                if current_response.function_calls:
-                    # Add the model's function call response to history
-                    conversation_history.append(current_response.text or "[Function calls made]")
-                    
-                    # Execute all tools and collect results
-                    for function_call in current_response.function_calls:
-                        if function_call.name:
-                            print(f"Using tool: {function_call.name}")
-                            tool_result = await mcp_client.use_tool(
-                                tool_name=function_call.name, 
-                                arguments=dict(function_call.args) if function_call.args else {}
-                            )
-                            
-                            # Create function response and add to history
-                            function_response = genai_types.Part.from_function_response(
-                                name=function_call.name,
-                                response={"result": "\n".join(tool_result)}
-                            )
-                            conversation_history.append(function_response)
+            # Check if we need to use tools by looking at function_calls
+            if current_response.function_calls:
+                # Add the model's function call response to history
+                response.append(current_response.text or "[Function calls made]")
+                
+                # Execute all tools and collect results
+                for function_call in current_response.function_calls:
+                    if function_call.name:
+                        print(f"Using tool: {function_call.name}")
+                        tool_result = await mcp_client.use_tool(
+                            tool_name=function_call.name, 
+                            arguments=dict(function_call.args) if function_call.args else {}
+                        )
+                        
+                        # Create function response and add to history
+                        function_response = genai_types.Part.from_function_response(
+                            name=function_call.name,
+                            response={"result": "\n".join(tool_result)}
+                        )
+                        response.append(function_response)
 
-                    continue
+                continue
 
+            else:
+                # No tools needed, extract final text response
+                if current_response.text:
+                    print(f"Assistant: {current_response.text}")
+                    # Add assistant response to history for next turn
+                    response.append(current_response.text)
                 else:
-                    # No tools needed, extract final text response
-                    if current_response.text:
-                        print(f"Assistant: {current_response.text}")
-                        # Add assistant response to history for next turn
-                        conversation_history.append(current_response.text)
-                    else:
-                        print("Assistant: [No text response available]")
-                        conversation_history.append("[No response]")
+                    print("Assistant: [No text response available]")
+                    response.append("[No response]")
 
-                    break
+                break
     finally:
         await mcp_client.disconnect()
 
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    return response
