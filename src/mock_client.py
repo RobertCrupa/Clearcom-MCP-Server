@@ -80,8 +80,8 @@ class DeviceClient:
         print(f"Called get_role_channel_assignments with role_name={role_name}")
         return []
 
-    def assign_channel_to_role(self, channel_name, role_name, is_latching):
-        print(f"Called assing_channel_to_role with channel_name={channel_name}, role_name={role_name}, is_latching={is_latching}")
+    def set_role_channel_assignments(self, role_name: str, channel_names: list[str], is_latchings: list[bool]) -> None:
+        print(f"Called set_role_channel_assignments with role_name={role_name}, channel_names={channel_names}, is_latchings={is_latchings}")
         pass
 
 

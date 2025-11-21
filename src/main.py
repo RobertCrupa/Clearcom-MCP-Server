@@ -99,17 +99,17 @@ def getRoleChannelAssignments(
     roleLabel: str
 ) -> list[str]:
     
-    channel_assignments = client.get_role_channel_assigments(role_name=roleLabel)
+    channel_assignments = client.get_role_channel_assignments(role_name=roleLabel)
     return channel_assignments
 
-@mcp.tool(description=ASSIGN_CHANNEL_TO_ROLE_DOC)
-def assignChannelToRole(
+@mcp.tool(description=SET_ROLE_CHANNEL_ASSIGNMENTS_DOC)
+def setRoleChannelAssignments(
     roleLabel: str,
-    channelLabel: str,
-    isLatching: bool
+    channelLabels: list[str],
+    isLatchings: list[bool]
 ) -> bool:
     
-    client.assign_channel_to_role(channel_name=channelLabel, role_name=roleLabel, is_latching=isLatching)
+    client.set_role_channel_assignments(role_name=roleLabel, channel_names=channelLabels, is_latchings=isLatchings)
 
     return True
 
