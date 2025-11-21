@@ -155,6 +155,32 @@ class DeviceClient:
         except (KeyError, ValueError) as e:
             raise ValueError(f"Failed to parse response: {e}")
     
+    def delete_connection(self, connection_id: int) -> None:
+        """
+        Makes a DELETE request to /api/1/connections/{id} to delete a connection.
+        
+        Args:
+            connection_id: ID of the connection to delete
+        """
+        url = f"{self.base_url}/api/1/connections/{connection_id}"
+        
+        try:
+            response = self.session.delete(
+                url,
+                headers={"Content-Type": "application/json"},
+                timeout=30
+            )
+
+            response_json = response.json()
+            if (response_json["ok"] != True):
+                raise ValueError(f"Failed to delete connection: {response_json['message']}")
+
+            # Raise an exception for bad status codes
+            response.raise_for_status()
+            
+        except requests.RequestException as e:
+            raise requests.RequestException(f"Failed to delete connection: {e}")
+    
     def get_roles(self) -> list[dict[str, Any]]:
         """
         Makes a GET request to /api/2/rolesets to fetch the list of rolesets.
@@ -230,6 +256,32 @@ class DeviceClient:
             
         except requests.RequestException as e:
             raise requests.RequestException(f"Failed to add roles: {e}")
+    
+    def delete_role(self, roleset_id):
+        """
+        Makes a DELETE request to /api/2/rolesets/{id} to delete a roleset.
+        
+        Args:
+            roleset_id: ID of the roleset to delete
+        """
+        url = f"{self.base_url}/api/2/rolesets/{roleset_id}"
+        
+        try:
+            response = self.session.delete(
+                url,
+                headers={"Content-Type": "application/json"},
+                timeout=30
+            )
+
+            response_json = response.json()
+            if (response_json["ok"] != True):
+                raise ValueError(f"Failed to delete roleset: {response_json['message']}")
+
+            # Raise an exception for bad status codes
+            response.raise_for_status()
+            
+        except requests.RequestException as e:
+            raise requests.RequestException(f"Failed to delete roleset: {e}")
     
     def get_keysets(self) -> list[dict[str, Any]]:
         """
@@ -329,12 +381,16 @@ if __name__ == "__main__":
     # get_response = client.get_connections()
     # print(f"Connections: {', '.join([conn.label for conn in get_response.connections])}")
     
-    add_request = ConnectionsAddRequest(type=ConnectionType.PARTYLINE, label="Production")
-    add_response = client.add_connection(add_request)
-    print(f"Connection added with ID: {add_response.newConnection.id}")
+    # add_request = ConnectionsAddRequest(type=ConnectionType.PARTYLINE, label="Production")
+    # add_response = client.add_connection(add_request)
+    # print(f"Connection added with ID: {add_response.newConnection.id}")
+
+    # client.delete_connection(1)
 
     # add_request = RolesAddRequest(label="NewRole", quantity=1, sessions=[RoleSessionType.FREESPEAK_4KEY, RoleSessionType.KEYPANEL_12KEY], singleKeysetPerType=False)
     # client.add_roles(add_request)
+
+    # client.delete_role(2)
 
     # client.assign_channel_to_role(channel_name="Channel 1", role_name="test")
 
