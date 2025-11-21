@@ -208,17 +208,6 @@ class DeviceClient:
         except requests.RequestException as e:
             raise requests.RequestException(f"Failed to get rolesets: {e}")
     
-    def get_role_names(self) -> list[str]:
-        """
-        Retrieves the list of role names from the rolesets.
-        
-        Returns:
-            List of role names (str)
-        """
-        rolesets = self.get_roles()
-        role_names = [roleset["label"] for roleset in rolesets]
-        return role_names
-    
     def add_roles(self, request: RolesAddRequest) -> None:
         """
         Makes a POST request to /api/2/rolesets/create to add new roles.
@@ -310,6 +299,34 @@ class DeviceClient:
         except requests.RequestException as e:
             raise requests.RequestException(f"Failed to get keysets: {e}")
     
+    def get_role_channel_assigments(self, role_name: str) -> list[str]:
+        """
+        Retrieves the list of channel labels assigned to a specific role.
+        
+        Args:
+            role_name: Name of the role to get channel assignments for
+            
+        Returns:
+            List of channel labels (str) assigned to the role
+        """
+        keysets = self.get_keysets()
+        this_keyset_list = [ks for ks in keysets if ks["label"] == role_name]
+        if len(this_keyset_list) != 1:
+            raise ValueError(f"Role '{role_name}' not found or multiple roles with same name exist.")
+        this_keyset = this_keyset_list[0]
+
+        channel_labels = []
+        connections = self.get_connections()
+        for key in this_keyset["settings"]["keysets"]:
+            if len(key["entities"]) == 0:
+                continue
+            entity = key["entities"][0]
+            matching_conns = [conn for conn in connections.connections if conn.gid == entity["gid"]]
+            if len(matching_conns) == 1:
+                channel_labels.append(matching_conns[0].label)
+        
+        return channel_labels
+    
     def assign_channel_to_role(self, channel_name: str, role_name: str, is_latching: bool) -> None:
         """
         Assigns a channel to a role.
@@ -387,10 +404,15 @@ if __name__ == "__main__":
 
     # client.delete_connection(1)
 
+    roleinfo = client.get_roles()
+
     # add_request = RolesAddRequest(label="NewRole", quantity=1, sessions=[RoleSessionType.FREESPEAK_4KEY, RoleSessionType.KEYPANEL_12KEY], singleKeysetPerType=False)
     # client.add_roles(add_request)
 
     # client.delete_role(2)
+
+    # channel_assignments = client.get_role_channel_assigments(role_name="hello")
+    # print(f"Channels assigned to 'hello': {', '.join(channel_assignments)}")
 
     # client.assign_channel_to_role(channel_name="Channel 1", role_name="test")
 

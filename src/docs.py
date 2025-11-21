@@ -52,25 +52,49 @@ House Manager 1,HXII-KB,,,,,,,,,2
 House Manager 2,HXII-KB,,,,,,,,,2
 """
 
+GET_ROLE_CHANNEL_ASSIGNMENTS_DOC = """
+Retrieve a list of channel labels assigned to a specific role in the ClearCom MCP system.
+
+REQUIRED PARAMETERS:
+  • roleLabel (str): The label of the role to fetch channel assignments for.
+
+RETURNS:
+  • list[str]: A list of channel labels assigned to the specified role.
+
+Use this tool to see which channels (a.k.a. partylines) are assigned to a specific role.
+"""
+
 ASSIGN_CHANNEL_TO_ROLE_DOC = """
 Assigns a channel to a role in the ClearCom MCP system.
 
-Parameters:
-- roleLabel (str): The label of the role to assign the channel to.
-- channelLabel (str): The label of the channel to be assigned.
-- isLatching (bool): True if set to latching.
+REQUIRED PARAMETERS:
+  • roleLabel (str): The label of the role to assign the channel to.
+  • channelLabel (str): The label of the channel to be assigned.
+  • isLatching (bool): True if set to latching.
 
-Returns:
-- bool: True if the assignment was successful, False otherwise.
+RETURNS:
+  • bool: True if the assignment was successful, False otherwise.
 
-Use this tool to link a specific channel (such as a partyline).
+Use this tool to link a specific channel (a.k.a. partyline).
 """
 
 GET_ROLES_DOC = """
-Retrieve a list of all role labels from the ClearCom MCP system.
+Retrieve a list of all role labels and corresponding keyset types from the ClearCom MCP system.
 
 RETURNS:
-  • list[str]: A list of role labels (str)
+  • list[RoleInfo]: A list of RoleInfo objects containing role labels and keyset types. (see RoleInfo structure below)
+
+RoleInfo Structure:
+  • label (str): The human-readable name of the role.
+  • keyset_type (RoleSessionType): Role keyset type enum from supported options:
+    - RoleSessionType.FREESPEAK_4KEY: FreeSpeak II 4-Key Beltpack
+    - RoleSessionType.FREESPEAK_8KEY: FreeSpeak Edge 8-Key Beltpack
+    - RoleSessionType.HELIXNET_BP: HelixNet Beltpack
+    - RoleSessionType.HELIXNET_RM: HelixNet Remote Station
+    - RoleSessionType.HELIXNET_KB: HelixNet Speaker Station
+    - RoleSessionType.KEYPANEL_12KEY: V-Series Keypanel 12-Key
+    - RoleSessionType.KEYPANEL_24KEY: V-Series Keypanel 24-Key
+    - RoleSessionType.KEYPANEL_32KEY: V-Series Keypanel 32-Key
 """
 
 CREATE_ROLE_DOC = """
