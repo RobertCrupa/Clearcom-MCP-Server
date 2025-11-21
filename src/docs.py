@@ -64,18 +64,18 @@ RETURNS:
 Use this tool to see which channels (a.k.a. partylines) are assigned to a specific role.
 """
 
-ASSIGN_CHANNEL_TO_ROLE_DOC = """
-Assigns a channel to a role in the ClearCom MCP system.
+SET_ROLE_CHANNEL_ASSIGNMENTS_DOC = """
+Assigns channels to a role in the ClearCom MCP system.
 
 REQUIRED PARAMETERS:
   • roleLabel (str): The label of the role to assign the channel to.
-  • channelLabel (str): The label of the channel to be assigned.
-  • isLatching (bool): True if set to latching.
+  • channelLabels (list[str]): The labels of the channels to be assigned.
+  • isLatchings (list[bool]): List indicating if each channel is set to latching.
 
 RETURNS:
   • bool: True if the assignment was successful, False otherwise.
 
-Use this tool to link a specific channel (a.k.a. partyline).
+Use this tool to link specific channels (a.k.a. partylines) to a role, or to remove existing assignments.
 """
 
 GET_ROLES_DOC = """

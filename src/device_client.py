@@ -299,7 +299,7 @@ class DeviceClient:
         except requests.RequestException as e:
             raise requests.RequestException(f"Failed to get keysets: {e}")
     
-    def get_role_channel_assigments(self, role_name: str) -> list[str]:
+    def get_role_channel_assignments(self, role_name: str) -> list[str]:
         """
         Retrieves the list of channel labels assigned to a specific role.
         
@@ -327,14 +327,14 @@ class DeviceClient:
         
         return channel_labels
     
-    def assign_channel_to_role(self, channel_name: str, role_name: str, is_latching: bool) -> None:
+    def set_role_channel_assignments(self, role_name: str, channel_names: list[str], is_latchings: list[bool]) -> None:
         """
         Assigns a channel to a role.
         
         Args:
-            channel_name: Name of the channel to assign
             role_name: Name of the role to assign the channel to
-            is_latching: Whether the key is latching or not
+            channel_names: Names of the channels to assign
+            is_latchings: List of booleans indicating whether each key is latching or not
             
         Raises:
             requests.RequestException: If the HTTP request fails
@@ -342,26 +342,27 @@ class DeviceClient:
         
         try:
             connections = self.get_connections()
-            this_channel_list = [conn for conn in connections.connections if conn.label == channel_name and conn.type == ConnectionType.PARTYLINE]
-            if len(this_channel_list) != 1:
-                raise ValueError(f"Channel '{channel_name}' not found or multiple channels with same name exist.")
-            this_channel = this_channel_list[0]
-
             keysets = self.get_keysets()
             this_keyset_list = [ks for ks in keysets if ks["label"] == role_name]
             if len(this_keyset_list) != 1:
                 raise ValueError(f"Role '{role_name}' not found or multiple roles with same name exist.")
             this_keyset = this_keyset_list[0]
 
-            for key in this_keyset["settings"]["keysets"]:
-                if len(key["entities"]) == 0:
+            for index, key in enumerate(this_keyset["settings"]["keysets"]):
+                key["entities"] = []
+                if index < len(channel_names):
+                    channel_name = channel_names[index]
+                    is_latching = is_latchings[index]
+                    this_channel_list = [conn for conn in connections.connections if conn.label == channel_name and conn.type == ConnectionType.PARTYLINE]
+                    if len(this_channel_list) != 1:
+                        raise ValueError(f"Channel '{channel_name}' not found or multiple channels with same name exist.")
+                    this_channel = this_channel_list[0]
                     key["entities"].append({
                         "gid": this_channel.gid,
                         "res": this_channel.res,
                         "type": 0 # Assuming adding a channel connection
                     })
                     key["talkBtnMode"] = "latching" if is_latching else "non-latching"
-                    break
             
             request_data = {
                 "settings": this_keyset["settings"],
@@ -404,16 +405,16 @@ if __name__ == "__main__":
 
     # client.delete_connection(1)
 
-    roleinfo = client.get_roles()
+    # roleinfo = client.get_roles()
 
     # add_request = RolesAddRequest(label="NewRole", quantity=1, sessions=[RoleSessionType.FREESPEAK_4KEY, RoleSessionType.KEYPANEL_12KEY], singleKeysetPerType=False)
     # client.add_roles(add_request)
 
     # client.delete_role(2)
 
-    # channel_assignments = client.get_role_channel_assigments(role_name="hello")
-    # print(f"Channels assigned to 'hello': {', '.join(channel_assignments)}")
+    # channel_assignments = client.get_role_channel_assignments(role_name="Production")
+    # print(f"Channels assigned to 'Production': {', '.join(channel_assignments)}")
 
-    # client.assign_channel_to_role(channel_name="Channel 1", role_name="test")
+    client.set_role_channel_assignments(role_name="test", channel_names=["Channel 2"], is_latchings=[False])
 
     client.close()
