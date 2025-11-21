@@ -77,11 +77,6 @@ def convert_mcp_tools_to_gemini(mcp_tools):
         # Clean up the input schema by resolving refs and removing unsupported properties
         cleaned_schema = resolve_schema_refs(tool["input_schema"])
         
-        # Debug print to see the schema transformation
-        print(f"Tool {tool['name']} schema cleaned:")
-        print(f"  Original: {tool['input_schema']}")
-        print(f"  Cleaned: {cleaned_schema}")
-        
         # Create a FunctionDeclaration for each MCP tool
         function_declaration = genai_types.FunctionDeclaration(
             name=tool["name"],
