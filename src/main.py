@@ -14,9 +14,29 @@ from mock_client import DeviceClient
 mcp = FastMCP("ClearCom MCP Server")
 client = DeviceClient(base_url="http://10.50.16.99", username="admin", password="admin")
 
-@mcp.tool(name="getRoles", description=GET_ROLES_DOC)
-def getRoles() -> list[str]:
-    return client.get_role_names()
+@mcp.tool(name="getRoles", description=GET_ROLES_DOC, output_schema={
+    "type": "object",
+    "properties": {
+        "roles": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "label": {"type": "string"},
+                    "keyset_type": {
+                        "type": "string",
+                        "enum": [e.value for e in RoleSessionType]
+                    }
+                },
+                "required": ["label", "keyset_type"]
+            }
+        }
+    },
+    "required": ["roles"]
+})
+def getRoles() -> list[dict]:
+    rolesets = client.get_roles()
+    return {"roles": [{"label": roleset["label"], "keyset_type": RoleSessionType(next(iter(roleset["sessions"].keys())))} for roleset in rolesets if next(iter(roleset["sessions"].keys())) != "S.NEP"]}
 
 @mcp.tool(name="createRole", description=CREATE_ROLE_DOC)
 def createRole(
@@ -73,6 +93,14 @@ def deleteChannel(
         raise ValueError(f"Could not find channel with label={label} to delete")
     client.delete_connection(connid_to_delete[0])
     return True
+
+@mcp.tool(description=GET_ROLE_CHANNEL_ASSIGNMENTS_DOC)
+def getRoleChannelAssignments(
+    roleLabel: str
+) -> list[str]:
+    
+    channel_assignments = client.get_role_channel_assigments(role_name=roleLabel)
+    return channel_assignments
 
 @mcp.tool(description=ASSIGN_CHANNEL_TO_ROLE_DOC)
 def assignChannelToRole(

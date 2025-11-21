@@ -45,10 +45,6 @@ class DeviceClient:
             List of rolesets as dictionaries
         """
         return []
-    
-    def get_role_names(self) -> list[str]:
-        roles = self.get_roles()
-        return [role['label'] for role in roles]
             
     def add_roles(self, request: RolesAddRequest) -> None:
         """
@@ -78,6 +74,10 @@ class DeviceClient:
         Returns:
             List of keysets as dictionaries
         """
+        return []
+
+    def get_role_channel_assignments(self, role_name):
+        print(f"Called get_role_channel_assignments with role_name={role_name}")
         return []
 
     def assign_channel_to_role(self, channel_name, role_name, is_latching):
