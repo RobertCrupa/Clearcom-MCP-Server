@@ -98,6 +98,21 @@ RETURNS:
   • True if the role was successfully created
 """
 
+DELETE_ROLE_DOC = """
+Delete the role with the specified label.
+
+REQUIRED PARAMETERS:
+  • label (str): Human-readable name for the role to delete (1-10 characters) (must already exist)
+
+EXAMPLE USAGE:
+  deleteRole(
+    label="Front Desk HRM"
+  )
+
+RETURNS:
+  • True if the role was successfully deleted
+"""
+
 GET_CHANNELS_DOC = """
 Retrieve a list of all partyline channel labels from the ClearCom MCP system.
 
@@ -110,8 +125,6 @@ Create a channel with a label.
 REQUIRED PARAMETERS:
   • label (str): Human-readable name for the new channel (1-10 characters) (must be unique)
 
-BEHAVIOR:
-
 EXAMPLE USAGE:
   addChannel(
     label="Production"
@@ -120,4 +133,19 @@ EXAMPLE USAGE:
 RETURNS:
   • True if the role was successfully created
   
+"""
+
+DELETE_CHANNEL_DOC = """
+Delete the channel with the specified label.
+
+REQUIRED PARAMETERS:
+  • label (str): Human-readable name for the channel to delete (1-10 characters) (must already exist)
+
+EXAMPLE USAGE:
+  deleteChannel(
+    label="Production"
+  )
+
+RETURNS:
+  • True if the channel was successfully deleted
 """
