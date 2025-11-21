@@ -25,6 +25,18 @@ class DeviceClient:
 
         return ConnectionsGetResponse(connections=[])
 
+    def add_connection(self, req):
+        print(f"Called add_connection with request={req}")
+    
+    def delete_connection(self, connection_id: int) -> None:
+        """
+        Makes a DELETE request to /api/1/connections/{id} to delete a connection.
+        
+        Args:
+            connection_id: ID of the connection to delete
+        """
+        pass
+
     def get_roles(self) -> list[dict[str, Any]]:
         """
         Makes a GET request to /api/2/rolesets to fetch the list of rolesets.
@@ -50,12 +62,27 @@ class DeviceClient:
         """
         pass
 
+    def delete_role(self, roleset_id: int) -> None:
+        """
+        Makes a DELETE request to /api/2/rolesets/{id} to delete a role.
+        
+        Args:
+            roleset_id: ID of the roleset to delete
+        """
+        pass
+
+    def get_keysets(self) -> list[dict[str, Any]]:
+        """
+        Makes a GET request to /api/2/keysets to fetch the list of keysets.
+        
+        Returns:
+            List of keysets as dictionaries
+        """
+        return []
+
     def assign_channel_to_role(self, channel_name, role_name, is_latching):
         print(f"Called assing_channel_to_role with channel_name={channel_name}, role_name={role_name}, is_latching={is_latching}")
         pass
-
-    def add_connection(self, req):
-        print(f"Called add_connection with request={req}")
 
 
     def close(self):
